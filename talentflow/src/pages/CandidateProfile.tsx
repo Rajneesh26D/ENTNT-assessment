@@ -1,45 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Mail,
   Phone,
   Briefcase,
   Calendar,
-  MessageSquare,
   Loader2,
 } from 'lucide-react';
 import HrLayout from '../components/layout/HrLayout';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import NotesEditor from '../components/candidates/NotesEditor';
-import ProfileTimeline from '../components/candidates/ProfileTimeline';
-import type { Candidate, TimelineEvent } from '../services/db';
+import { db } from '../services/db';
+import type { Candidate } from '../services/db';
 
 const CandidateProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [candidate, setCandidate] = useState<Candidate | null>(null);
-  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showNotes, setShowNotes] = useState(false);
 
   useEffect(() => {
     const fetchCandidate = async () => {
       if (!id) return;
-      
-      const [candidateRes, timelineRes] = await Promise.all([
-        fetch(`/api/candidates/${id}`),
-        fetch(`/api/candidates/${id}/timeline`),
-      ]);
 
-      if (candidateRes.ok && timelineRes.ok) {
-        setCandidate(await candidateRes.json());
-        setTimeline(await timelineRes.json());
+      try {
+        const candidateData = await db.candidates.get(id);
+        if (candidateData) {
+          setCandidate(candidateData);
+        }
+      } catch (error) {
+        console.error('Error fetching candidate:', error);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     fetchCandidate();
@@ -47,7 +41,7 @@ const CandidateProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <HrLayout>
+      <HrLayout title="Candidate Profile">
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
         </div>
@@ -57,15 +51,18 @@ const CandidateProfile: React.FC = () => {
 
   if (!candidate) {
     return (
-      <HrLayout>
+      <HrLayout title="Candidate Profile">
         <div className="text-center py-20">
-          <p className="text-slate-400">Candidate not found</p>
+          <p className="text-slate-400 text-lg">Candidate not found</p>
+          <Link to="/hr/candidates" className="text-purple-400 hover:text-purple-300 mt-4 inline-block">
+            ← Back to Candidates
+          </Link>
         </div>
       </HrLayout>
     );
   }
 
-  const stageColors: Record<Candidate['stage'], 'primary' | 'warning' | 'info' | 'success' | 'danger'> = {
+  const stageColors: Record<Candidate['stage'], 'info' | 'warning' | 'primary' | 'success' | 'danger'> = {
     applied: 'info',
     screening: 'warning',
     technical: 'primary',
@@ -75,99 +72,104 @@ const CandidateProfile: React.FC = () => {
   };
 
   return (
-    <HrLayout>
+    <HrLayout title={candidate.name}>
       <div className="space-y-6">
         {/* Back Button */}
         <Link
           to="/hr/candidates"
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-white"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Candidates
         </Link>
 
         {/* Profile Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card gradient>
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              {/* Avatar */}
-              <img
-                src={candidate.avatar}
-                alt={candidate.name}
-                className="w-24 h-24 rounded-full border-4 border-purple-500/50"
-              />
+        <Card>
+          <div className="flex items-start gap-6">
+            {/* Avatar */}
+            <img
+              src={candidate.avatar}
+              alt={candidate.name}
+              className="w-24 h-24 rounded-full"
+            />
 
-              {/* Info */}
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                      {candidate.name}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-4 text-slate-400">
-                      <span className="flex items-center gap-2">
-                        <Mail className="w-4 h-4" />
-                        {candidate.email}
-                      </span>
-                      {candidate.phone && (
-                        <span className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          {candidate.phone}
-                        </span>
-                      )}
-                    </div>
+            {/* Info */}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-white mb-2">
+                {candidate.name}
+              </h1>
+
+              <div className="flex flex-wrap gap-4 text-sm text-slate-400 mb-4">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  {candidate.email}
+                </div>
+                {candidate.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    {candidate.phone}
                   </div>
-                  <Badge variant={stageColors[candidate.stage]} size="lg" dot>
-                    {candidate.stage}
-                  </Badge>
-                </div>
-
-                <div className="flex flex-wrap gap-4 text-sm text-slate-400">
-                  {candidate.jobTitle && (
-                    <span className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4" />
-                      {candidate.jobTitle}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Applied {new Date(candidate.appliedDate).toLocaleDateString()}
-                  </span>
-                </div>
+                )}
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-col gap-2">
-                <Button variant="gradient" icon={<MessageSquare className="w-4 h-4" />}>
-                  Schedule Interview
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowNotes(!showNotes)}
-                >
-                  {showNotes ? 'Hide Notes' : 'Add Notes'}
-                </Button>
+              <div className="flex flex-wrap gap-3">
+                <Badge variant={stageColors[candidate.stage]}>
+                  {candidate.stage.charAt(0).toUpperCase() + candidate.stage.slice(1)}
+                </Badge>
+                {candidate.jobTitle && (
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <Briefcase className="w-4 h-4" />
+                    {candidate.jobTitle}
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Calendar className="w-4 h-4" />
+                  Applied {new Date(candidate.appliedDate).toLocaleDateString()}
+                </div>
               </div>
             </div>
-          </Card>
-        </motion.div>
 
-        {/* Notes Editor */}
-        {showNotes && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <NotesEditor candidateId={candidate.id} />
-          </motion.div>
-        )}
+            {/* Actions */}
+            <div className="flex gap-2">
+              <Button variant="primary" icon={<Calendar className="w-4 h-4" />}>
+                Schedule Interview
+              </Button>
+            </div>
+          </div>
+        </Card>
 
-        {/* Timeline */}
-        <ProfileTimeline timeline={timeline} />
+        {/* Additional Info */}
+        <Card>
+          <h2 className="text-xl font-semibold text-white mb-4">Candidate Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Email</p>
+              <p className="text-white">{candidate.email}</p>
+            </div>
+            {candidate.phone && (
+              <div>
+                <p className="text-sm text-slate-400 mb-1">Phone</p>
+                <p className="text-white">{candidate.phone}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Current Stage</p>
+              <Badge variant={stageColors[candidate.stage]}>
+                {candidate.stage.charAt(0).toUpperCase() + candidate.stage.slice(1)}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Applied Date</p>
+              <p className="text-white">{new Date(candidate.appliedDate).toLocaleDateString()}</p>
+            </div>
+            {candidate.jobTitle && (
+              <div>
+                <p className="text-sm text-slate-400 mb-1">Applied For</p>
+                <p className="text-white">{candidate.jobTitle}</p>
+              </div>
+            )}
+          </div>
+        </Card>
       </div>
     </HrLayout>
   );
