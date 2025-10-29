@@ -5,20 +5,24 @@ import './index.css';
 import { worker } from './services/api';
 import { seedDatabase } from './services/seed';
 
-// Start MSW
+// Start MSW and seed database
 async function enableMocking() {
-  if (import.meta.env.MODE !== 'development')  {
+  // In production, seed database WITHOUT MSW (MSW doesn't work in prod)
+  if (import.meta.env.MODE !== 'development') {
+    console.log('🌱 Production: Seeding database...');
+    await seedDatabase();
+    console.log('✅ Database seeded successfully!');
     return;
   }
 
+  // In development, start MSW AND seed
   await worker.start({
     onUnhandledRequest: 'bypass',
   });
-
-  console.log('🚀 MSW Started');
+  console.log('🚀 MSW Started (Development)');
   
   await seedDatabase();
-  console.log('🌱 Database seeded');
+  console.log('🌱 Database seeded (Development)');
 }
 
 enableMocking().then(() => {
