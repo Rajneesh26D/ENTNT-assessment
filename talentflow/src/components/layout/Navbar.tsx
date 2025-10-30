@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Building  } from 'lucide-react';
+import { Menu, X, Building, User, Mail, Phone, LogOut } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -15,6 +17,22 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileOpen]);
 
   const navLinks = [
     { name: 'Jobs', path: '/hr/jobs' },
@@ -70,13 +88,69 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-3">
             <Link
               to="/hr/dashboard"
               className="px-6 py-2.5 bg-purple-600 text-white rounded-lg font-semibold transition-colors hover:bg-purple-700"
             >
               Dashboard
             </Link>
+            
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className={`p-2.5 rounded-lg font-semibold transition-colors ${
+                  isProfileOpen 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                <User className="w-5 h-5" />
+              </button>
+
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-72 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden"
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+                          <User className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Sarah Johnson</h3>
+                          <p className="text-slate-400 text-sm">HR Manager</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 mb-4 pb-4 border-b border-white/10">
+                        <div className="flex items-center gap-3 text-slate-300">
+                          <Mail className="w-4 h-4 text-slate-400" />
+                          <span className="text-sm">sarah.johnson@talentflow.com</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-slate-300">
+                          <Phone className="w-4 h-4 text-slate-400" />
+                          <span className="text-sm">+1 (555) 123-4567</span>
+                        </div>
+                      </div>
+
+                      <button
+                        disabled
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800/50 text-slate-500 rounded-lg font-medium cursor-not-allowed opacity-60"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <button
