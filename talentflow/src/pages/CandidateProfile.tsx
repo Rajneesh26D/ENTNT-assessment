@@ -74,7 +74,6 @@ const CandidateProfile: React.FC = () => {
   return (
     <HrLayout title={candidate.name}>
       <div className="space-y-6">
-        {/* Back Button */}
         <Link
           to="/hr/candidates"
           className="inline-flex items-center gap-2 text-slate-400 hover:text-white"
@@ -83,17 +82,14 @@ const CandidateProfile: React.FC = () => {
           Back to Candidates
         </Link>
 
-        {/* Profile Header */}
         <Card>
           <div className="flex items-start gap-6">
-            {/* Avatar */}
             <img
               src={candidate.avatar}
               alt={candidate.name}
               className="w-24 h-24 rounded-full"
             />
 
-            {/* Info */}
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-white mb-2">
                 {candidate.name}
@@ -129,7 +125,6 @@ const CandidateProfile: React.FC = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-2">
               <Button variant="primary" icon={<Calendar className="w-4 h-4" />}>
                 Schedule Interview
@@ -138,7 +133,6 @@ const CandidateProfile: React.FC = () => {
           </div>
         </Card>
 
-        {/* Additional Info */}
         <Card>
           <h2 className="text-xl font-semibold text-white mb-4">Candidate Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

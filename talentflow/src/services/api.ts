@@ -5,7 +5,7 @@ import { setupWorker } from 'msw/browser';
 import { db } from './db';
 import type { Candidate, TimelineEvent } from './db'; 
 
-// Simulate network delay and errors
+// network delay and errors
 const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 200));
 const shouldError = () => Math.random() < 0.08; // 8% error rate
 
@@ -26,7 +26,6 @@ function timelineTable() {
 }
 
 export const handlers = [
-  // GET /api/candidates (UPDATED to v2)
   http.get('/api/candidates', async ({ request }) => {
     await delay();
 
@@ -64,7 +63,7 @@ export const handlers = [
       );
     }
 
-    // Pagination
+  
     const total = candidates.length;
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
@@ -81,7 +80,6 @@ export const handlers = [
     });
   }),
 
-  // GET /api/candidates/:id (UPDATED to v2)
   http.get('/api/candidates/:id', async ({ params }) => {
     await delay();
 
@@ -104,7 +102,6 @@ export const handlers = [
     return HttpResponse.json(candidate);
   }),
 
-  // PATCH /api/candidates/:id (UPDATED to v2)
   http.patch('/api/candidates/:id', async ({ request, params }) => {
     await delay();
 
@@ -123,7 +120,7 @@ export const handlers = [
 
     await tbl.update(id as string, updates);
 
-    // Add timeline event if stage changed
+    // timeline
     if (updates.stage && tl) {
       await tl.add({
         id: `timeline-${Date.now()}`,
@@ -139,7 +136,7 @@ export const handlers = [
     return HttpResponse.json(candidate);
   }),
 
-  // GET /api/candidates/:id/timeline (UPDATED to v2)
+
   http.get('/api/candidates/:id/timeline', async ({ params }) => {
     await delay();
 
@@ -157,7 +154,7 @@ export const handlers = [
     return HttpResponse.json(events);
   }),
 
-  // POST /api/candidates (UPDATED to v2)
+
   http.post('/api/candidates', async ({ request }) => {
     await delay();
 
@@ -165,7 +162,7 @@ export const handlers = [
       return HttpResponse.json({ error: 'Failed to create candidate' }, { status: 500 });
     }
 
-    const data = await request.json() as Omit<Candidate, 'id' | 'appliedDate'>; // Get JSON body
+    const data = await request.json() as Omit<Candidate, 'id' | 'appliedDate'>; // JSON body
     const newCandidate: Candidate = {
       id: `cand-${Date.now()}`,
       ...data,
@@ -180,7 +177,7 @@ export const handlers = [
 
     await tbl.add(newCandidate);
 
-    // Add initial timeline event
+  
     if (tl) {
       await tl.add({
         id: `timeline-${Date.now()}`,
@@ -192,7 +189,7 @@ export const handlers = [
       });
     }
 
-    return HttpResponse.json(newCandidate, { status: 201 }); // 201 Created
+    return HttpResponse.json(newCandidate, { status: 201 });
   }),
 ];
 

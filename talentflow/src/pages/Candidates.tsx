@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   List,
@@ -15,10 +15,11 @@ import CandidateSearch from '../components/candidates/CandidateSearch';
 import KanbanBoard from '../components/candidates/KanbanBoard';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
-import { useCandidates } from '../hooks/useCandidates'; 
 import type { Candidate } from '../services/db';
 import { exportCandidatesToCSV, importCandidatesFromCSV } from '../utils/export';
 import { VirtualizedCandidateList } from './VirtualizedCandidateList';
+import { liveQuery } from 'dexie';
+import { db } from '../services/db';
 
 type ViewMode = 'list' | 'kanban';
 
@@ -29,12 +30,38 @@ const Candidates: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showImportHelp, setShowImportHelp] = useState(false);
 
-  const { candidates, loading, error, pagination, updateCandidate, fetchCandidates } = useCandidates(
-    search,
-    stageFilter,
-    currentPage,
-    40
-  );
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const pageSize = 40;
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    const subscription = liveQuery(async () => {
+      const [allCandidates, total] = await Promise.all([
+        db.candidates.toArray(),
+        db.candidates.count(),
+      ]);
+      return { allCandidates, total };
+    }).subscribe({
+      next: ({ allCandidates}) => {
+        setCandidates(allCandidates);
+        setLoading(false);
+      },
+      error: (err) => {
+        console.error('liveQuery error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load candidates');
+        setLoading(false);
+      },
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSearch = (value: string) => {
     setSearch(value);
@@ -57,33 +84,51 @@ const Candidates: React.FC = () => {
     try {
       const count = await importCandidatesFromCSV(file);
       alert(`Successfully imported ${count} candidates!`);
-      fetchCandidates();
     } catch (error) {
       alert('Error importing candidates. Please check CSV format.');
       console.error(error);
     }
-    
+
     event.target.value = '';
   };
 
-  const totalCandidates = pagination.total;
-
   const handleExport = () => {
-    // Add type assertion to fix type error
-    exportCandidatesToCSV(candidates as Candidate[]);
+    exportCandidatesToCSV(candidates);
   };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 500); 
+  };
+
+  const allDisplayCandidates = candidates.filter((c) => {
+    const matchesSearch =
+      !search ||
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase()) ||
+      (c.phone && c.phone.includes(search));
+
+    const matchesStage = !stageFilter || c.stage === stageFilter;
+
+    return matchesSearch && matchesStage;
+  });
+
+  const displayCandidates = allDisplayCandidates.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+  const displayTotal = allDisplayCandidates.length;
+  const displayTotalPages = Math.ceil(displayTotal / pageSize);
 
   return (
     <HrLayout title="Candidates">
       <div className="space-y-6">
-        {/* Header with Actions */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          {/* Stats & View Toggle */}
           <div className="flex items-center gap-4">
             <div className="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30">
               <p className="text-sm text-purple-300">
                 Total:{" "}
-                <span className="font-bold text-white">{totalCandidates}</span>{" "}
+                <span className="font-bold text-white">{displayTotal}</span>{" "}
                 candidates
               </p>
             </div>
@@ -114,13 +159,12 @@ const Candidates: React.FC = () => {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
               size="sm"
               icon={<RefreshCw className="w-4 h-4" />}
-              onClick={fetchCandidates}
+              onClick={handleRefresh}
             >
               Refresh
             </Button>
@@ -156,21 +200,19 @@ const Candidates: React.FC = () => {
               variant="secondary"
               size="sm"
               icon={<Download className="w-4 h-4" />}
-              onClick={handleExport} // Use corrected handler
+              onClick={handleExport}
             >
               Export CSV
             </Button>
           </div>
         </div>
 
-        {/* Search and Filters */}
         <CandidateSearch
           onSearch={handleSearch}
           onStageFilter={handleStageFilter}
           currentStage={stageFilter}
         />
 
-        {/* Content */}
         <AnimatePresence mode="wait">
           {loading && currentPage === 1 ? (
             <motion.div
@@ -196,7 +238,7 @@ const Candidates: React.FC = () => {
                 Oops! Something went wrong
               </p>
               <p className="text-slate-500 text-sm mb-4">{error}</p>
-              <Button onClick={fetchCandidates}>Try Again</Button>
+              <Button onClick={handleRefresh}>Try Again</Button>
             </motion.div>
           ) : viewMode === "list" ? (
             <motion.div
@@ -206,16 +248,17 @@ const Candidates: React.FC = () => {
               exit={{ opacity: 0 }}
             >
               <VirtualizedCandidateList
-                candidates={candidates}
-                onUpdate={updateCandidate}
+                candidates={displayCandidates}
+                onUpdate={async (id, updates) => {
+                  await db.candidates.update(id, updates);
+                }}
               />
 
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
+              {displayTotalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
                    <p className="text-slate-400 text-sm">
-                    Page {currentPage} of {pagination.totalPages} • Showing{" "}
-                    {candidates.length} of {totalCandidates} candidates
+                    Page {currentPage} of {displayTotalPages} • Showing{" "}
+                    {displayCandidates.length} of {displayTotal} candidates
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -228,15 +271,15 @@ const Candidates: React.FC = () => {
                     </Button>
                     <div className="flex items-center gap-1">
                       {Array.from(
-                        { length: Math.min(5, pagination.totalPages) },
+                        { length: Math.min(5, displayTotalPages) },
                         (_, i) => {
                           let page: number;
-                          if (pagination.totalPages <= 5) {
+                          if (displayTotalPages <= 5) {
                             page = i + 1;
                           } else if (currentPage <= 3) {
                             page = i + 1;
-                          } else if (currentPage >= pagination.totalPages - 2) {
-                            page = pagination.totalPages - 4 + i;
+                          } else if (currentPage >= displayTotalPages - 2) {
+                            page = displayTotalPages - 4 + i;
                           } else {
                             page = currentPage - 2 + i;
                           }
@@ -261,7 +304,7 @@ const Candidates: React.FC = () => {
                       size="sm"
                       variant="secondary"
                       onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === pagination.totalPages}
+                      disabled={currentPage === displayTotalPages}
                     >
                       Next
                     </Button>
@@ -277,15 +320,16 @@ const Candidates: React.FC = () => {
               exit={{ opacity: 0 }}
             >
               <KanbanBoard
-                candidates={candidates}
-                onUpdate={updateCandidate}
+                candidates={displayCandidates}
+                onUpdate={async (id, updates) => {
+                  await db.candidates.update(id, updates);
+                }}
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* CSV Import Help Modal */}
       <Modal
         isOpen={showImportHelp}
         onClose={() => setShowImportHelp(false)}

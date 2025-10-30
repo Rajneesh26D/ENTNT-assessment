@@ -24,7 +24,6 @@ const NotesEditor: React.FC<NotesEditorProps> = ({ candidateId }) => {
     const value = e.target.value;
     setNote(value);
 
-    // Show mentions when @ is typed
     const lastChar = value[value.length - 1];
     if (lastChar === '@') {
       setShowMentions(true);
@@ -55,7 +54,6 @@ const NotesEditor: React.FC<NotesEditorProps> = ({ candidateId }) => {
             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
           />
 
-          {/* Mention Suggestions */}
           {showMentions && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}

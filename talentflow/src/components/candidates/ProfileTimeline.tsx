@@ -30,10 +30,7 @@ const ProfileTimeline: React.FC<ProfileTimelineProps> = ({ timeline }) => {
             transition={{ delay: index * 0.1 }}
             className="relative pl-8 pb-6 border-l-2 border-white/10 last:border-0 last:pb-0"
           >
-            {/* Timeline Dot */}
             <div className="absolute left-0 top-0 -translate-x-1/2 w-4 h-4 rounded-full bg-purple-500 border-4 border-slate-950" />
-
-            {/* Content */}
             <div className="space-y-2">
               <div className="flex items-start justify-between">
                 <div>

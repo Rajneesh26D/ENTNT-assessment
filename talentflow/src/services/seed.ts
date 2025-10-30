@@ -26,16 +26,16 @@ const tags = ['Remote', 'On-site', 'Hybrid', 'Full-time', 'Part-time', 'Contract
 const locations = ['New York', 'San Francisco', 'Austin', 'Boston', 'Seattle', 'Remote'];
 const types = ['Full-time', 'Part-time', 'Contract', 'Internship'];
 
-// Seed Jobs FIRST
+
 export async function seedJobs(count: number = 25) {
   try {
     const existingCount = await db.jobs.count();
     if (existingCount >= count) {
-      console.log(`✅ Already have ${existingCount} jobs`);
+      console.log(`Already have ${existingCount} jobs`);
       return;
     }
 
-    console.log(`🌱 Seeding ${count} jobs...`);
+    console.log(`Seeding ${count} jobs...`);
 
     const jobs: Job[] = [];
 
@@ -69,9 +69,9 @@ export async function seedJobs(count: number = 25) {
     }
 
     await db.jobs.bulkAdd(jobs);
-    console.log(`✅ Seeded ${count} jobs successfully`);
+    console.log(`Seeded ${count} jobs successfully`);
   } catch (error) {
-    console.error('❌ Error seeding jobs:', error);
+    console.error('Error seeding jobs:', error);
   }
 }
 
@@ -80,11 +80,11 @@ export async function seedCandidates(count: number = 1000) {
   try {
     const existingCount = await db.candidates.count();
     if (existingCount >= count) {
-      console.log(`✅ Already have ${existingCount} candidates`);
+      console.log(`Already have ${existingCount} candidates`);
       return;
     }
 
-    console.log(`🌱 Seeding ${count} candidates...`);
+    console.log(`Seeding ${count} candidates...`);
 
     const candidates: Candidate[] = [];
     const timeline: TimelineEvent[] = [];
@@ -122,9 +122,9 @@ export async function seedCandidates(count: number = 1000) {
     await db.candidates.bulkAdd(candidates);
     await db.timeline.bulkAdd(timeline);
     
-    console.log(`✅ Seeded ${count} candidates`);
+    console.log(`Seeded ${count} candidates`);
   } catch (error) {
-    console.error('❌ Error seeding candidates:', error);
+    console.error('Error seeding candidates:', error);
   }
 }
 
@@ -135,7 +135,7 @@ export async function seedDatabase() {
   await seedCandidates(1000);
   // --- ADDED: seed assessments ---
   await seedAssessments();
-  console.log('🎉 Database fully seeded!');
+  console.log('Database fully seeded!');
 }
 
 // --- ADDED FUNCTION: seedAssessments ---
@@ -143,11 +143,11 @@ export async function seedAssessments() {
   try {
     const existingCount = await db.assessments.count();
     if (existingCount > 0) {
-      console.log(`✅ Already have ${existingCount} assessments`);
+      console.log(`Already have ${existingCount} assessments`);
       return;
     }
 
-    console.log('🌱 Seeding assessments...');
+    console.log('Seeding assessments...');
 
     const assessments: Assessment[] = [
       {
@@ -224,8 +224,8 @@ export async function seedAssessments() {
     ];
 
     await db.assessments.bulkAdd(assessments);
-    console.log(`✅ Seeded ${assessments.length} assessments`);
+    console.log(`Seeded ${assessments.length} assessments`);
   } catch (error) {
-    console.error('❌ Error seeding assessments:', error);
+    console.error('Error seeding assessments:', error);
   }
 }

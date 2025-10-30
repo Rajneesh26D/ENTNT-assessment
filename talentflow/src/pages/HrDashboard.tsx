@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -15,9 +15,11 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react';
+import { liveQuery } from 'dexie';
 import HrLayout from '../components/layout/HrLayout';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import { db } from '../services/db';
 
 interface StatCard {
   title: string;
@@ -39,13 +41,20 @@ interface ActivityItem {
   icon: React.ElementType;
 }
 
+interface PipelineStage {
+  stage: string;
+  count: number;
+  color: string;
+  percentage: number;
+}
+
 const HrDashboard: React.FC = () => {
-  const [stats] = useState<StatCard[]>([
+  const [stats, setStats] = useState<StatCard[]>([
     {
       title: 'Total Jobs',
-      total: 25,
+      total: 0,
       subtitle: 'Active',
-      subtitleValue: 18,
+      subtitleValue: 0,
       icon: Briefcase,
       gradient: 'from-purple-500 to-pink-500',
       trend: 'up',
@@ -53,9 +62,9 @@ const HrDashboard: React.FC = () => {
     },
     {
       title: 'Total Candidates',
-      total: 1247,
+      total: 0,
       subtitle: 'Hired',
-      subtitleValue: 89,
+      subtitleValue: 0,
       icon: Users,
       gradient: 'from-cyan-500 to-blue-500',
       trend: 'up',
@@ -63,9 +72,9 @@ const HrDashboard: React.FC = () => {
     },
     {
       title: 'Assessments',
-      total: 42,
+      total: 0,
       subtitle: 'Completed',
-      subtitleValue: 156,
+      subtitleValue: 0,
       icon: ClipboardCheck,
       gradient: 'from-orange-500 to-red-500',
       trend: 'down',
@@ -81,6 +90,15 @@ const HrDashboard: React.FC = () => {
       trend: 'up',
       trendValue: '+8%',
     },
+  ]);
+
+  const [pipelineStages, setPipelineStages] = useState<PipelineStage[]>([
+    { stage: 'Applied', count: 0, color: 'bg-purple-500', percentage: 0 },
+    { stage: 'Screening', count: 0, color: 'bg-cyan-500', percentage: 0 },
+    { stage: 'Technical', count: 0, color: 'bg-orange-500', percentage: 0 },
+    { stage: 'Offer', count: 0, color: 'bg-green-500', percentage: 0 },
+    { stage: 'Hired', count: 0, color: 'bg-pink-500', percentage: 0 },
+    { stage: 'Rejected', count: 0, color: 'bg-red-500', percentage: 0 },
   ]);
 
   const [recentActivityItems] = useState<ActivityItem[]>([
@@ -134,6 +152,152 @@ const HrDashboard: React.FC = () => {
     },
   ]);
 
+  useEffect(() => {
+    const subscription = liveQuery(
+      async () => {
+        const jobsCount = await db.jobs.count();
+        const activeJobsCount = await db.jobs.where('status').equals('active').count();
+        const candidatesCount = await db.candidates.count();
+        const hiredCount = await db.candidates.where('stage').equals('hired').count();
+        const assessmentsCount = await db.assessments.count();
+        const assessmentResponsesCount = await db.assessmentResponses.count();
+
+        return {
+          jobs: jobsCount,
+          activeJobs: activeJobsCount,
+          candidates: candidatesCount,
+          hired: hiredCount,
+          assessments: assessmentsCount,
+          completedAssessments: assessmentResponsesCount,
+        };
+      }
+    ).subscribe(
+      (result) => {
+        if (result) {
+          setStats(prevStats => [
+            {
+              ...prevStats[0],
+              total: result.jobs,
+              subtitleValue: result.activeJobs,
+            },
+            {
+              ...prevStats[1],
+              total: result.candidates,
+              subtitleValue: result.hired,
+            },
+            {
+              ...prevStats[2],
+              total: result.assessments,
+              subtitleValue: result.completedAssessments,
+            },
+            prevStats[3],
+          ]);
+        }
+      },
+      (error) => {
+        console.error('Error fetching dashboard stats:', error);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const subscription = liveQuery(
+      async () => {
+        const allCandidates = await db.candidates.toArray();
+        
+        const stageCounts: Record<string, number> = {
+          applied: 0,
+          screening: 0,
+          technical: 0,
+          offer: 0,
+          hired: 0,
+          rejected: 0,
+        };
+
+        allCandidates.forEach(candidate => {
+          if (Object.prototype.hasOwnProperty.call(stageCounts, candidate.stage)) {
+            stageCounts[candidate.stage]++;
+          }
+        });
+
+        return {
+          total: allCandidates.length,
+          stageCounts,
+        };
+      }
+    ).subscribe(
+      (result) => {
+        if (result && result.total > 0) {
+          const maxCount = Math.max(
+            result.stageCounts.applied,
+            result.stageCounts.screening,
+            result.stageCounts.technical,
+            result.stageCounts.offer,
+            result.stageCounts.hired
+          );
+
+          const stages: PipelineStage[] = [
+            {
+              stage: 'Applied',
+              count: result.stageCounts.applied,
+              color: 'bg-purple-500',
+              percentage: maxCount > 0 ? Math.round((result.stageCounts.applied / maxCount) * 100) : 0,
+            },
+            {
+              stage: 'Screening',
+              count: result.stageCounts.screening,
+              color: 'bg-cyan-500',
+              percentage: maxCount > 0 
+                ? Math.round((result.stageCounts.screening / maxCount) * 100)
+                : 0,
+            },
+            {
+              stage: 'Technical',
+              count: result.stageCounts.technical,
+              color: 'bg-orange-500',
+              percentage: maxCount > 0 
+                ? Math.round((result.stageCounts.technical / maxCount) * 100)
+                : 0,
+            },
+            {
+              stage: 'Offer',
+              count: result.stageCounts.offer,
+              color: 'bg-green-500',
+              percentage: maxCount > 0 
+                ? Math.round((result.stageCounts.offer / maxCount) * 100)
+                : 0,
+            },
+            {
+              stage: 'Hired',
+              count: result.stageCounts.hired,
+              color: 'bg-pink-500',
+              percentage: maxCount > 0 
+                ? Math.round((result.stageCounts.hired / maxCount) * 100)
+                : 0,
+            },
+            {
+              stage: 'Rejected',
+              count: result.stageCounts.rejected,
+              color: 'bg-red-500',
+              percentage: maxCount > 0 
+                ? Math.round((result.stageCounts.rejected / maxCount) * 100)
+                : 0,
+            },
+          ];
+
+          setPipelineStages(stages);
+        }
+      },
+      (error) => {
+        console.error('Error fetching pipeline data:', error);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const quickActions = [
     {
       title: 'Create New Job',
@@ -177,6 +341,10 @@ const HrDashboard: React.FC = () => {
     },
   };
 
+  const conversionRate = pipelineStages[0].count > 0 
+    ? ((pipelineStages[4].count / pipelineStages[0].count) * 100).toFixed(1)
+    : '0';
+
   return (
     <HrLayout title="Dashboard">
       <motion.div
@@ -185,7 +353,6 @@ const HrDashboard: React.FC = () => {
         animate="visible"
         className="space-y-8"
       >
-        {/* Stats Grid */}
         <motion.div
           variants={itemVariants}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -197,13 +364,11 @@ const HrDashboard: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <Card className="relative overflow-hidden" hover={false}>
-                {/* Gradient Background */}
                 <div
                   className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-10 blur-3xl`}
                 />
 
                 <div className="relative z-10 space-y-4">
-                  {/* Icon and Trend */}
                   <div className="flex items-start justify-between">
                     <div
                       className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient}`}
@@ -226,13 +391,10 @@ const HrDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Stats */}
                   <div>
-                    <p className="text-sm text-slate-400 mb-1">{stat.title}</p>
-                    <p className="text-4xl font-bold text-white mb-2">
-                      {stat.total.toLocaleString()}
-                    </p>
-                    <div className="flex items-center gap-2 text-sm">
+                    <h3 className="text-sm text-slate-400 mb-1">{stat.title}</h3>
+                    <p className="text-3xl font-bold text-white">{stat.total}</p>
+                    <div className="flex items-center gap-2 mt-2 text-sm">
                       <span className="text-slate-500">{stat.subtitle}:</span>
                       <span className="font-semibold text-slate-300">
                         {stat.subtitleValue}
@@ -245,7 +407,6 @@ const HrDashboard: React.FC = () => {
           ))}
         </motion.div>
 
-        {/* Quick Actions */}
         <motion.div variants={itemVariants}>
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
             <Activity className="w-6 h-6 text-purple-400" />
@@ -283,9 +444,7 @@ const HrDashboard: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Recent Activities and Performance Chart */}
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Recent Activities */}
           <motion.div variants={itemVariants}>
             <Card title="Recent Activity" className="h-full">
               <div className="space-y-4">
@@ -297,7 +456,6 @@ const HrDashboard: React.FC = () => {
                     transition={{ delay: index * 0.1 }}
                     className="flex items-start gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                   >
-                    {/* Icon */}
                     <div
                       className={`p-2 rounded-lg ${
                         activity.type === 'success'
@@ -312,7 +470,6 @@ const HrDashboard: React.FC = () => {
                       <activity.icon className="w-4 h-4" />
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">
                         {activity.title}
@@ -322,7 +479,6 @@ const HrDashboard: React.FC = () => {
                       </p>
                     </div>
 
-                    {/* Time */}
                     <div className="flex items-center gap-1 text-xs text-slate-500">
                       <Clock className="w-3 h-3" />
                       {activity.time}
@@ -331,7 +487,6 @@ const HrDashboard: React.FC = () => {
                 ))}
               </div>
 
-              {/* View All Link */}
               <div className="mt-6 pt-4 border-t border-white/10">
                 <Link
                   to="/hr/activity"
@@ -344,42 +499,118 @@ const HrDashboard: React.FC = () => {
             </Card>
           </motion.div>
 
-          {/* Performance Overview */}
           <motion.div variants={itemVariants}>
             <Card title="Hiring Pipeline Overview" className="h-full">
               <div className="space-y-6">
-                {/* Pipeline Stages */}
-                {[
-                  { stage: 'Applied', count: 450, color: 'bg-purple-500', percentage: 100 },
-                  { stage: 'Screening', count: 280, color: 'bg-cyan-500', percentage: 62 },
-                  { stage: 'Technical', count: 120, color: 'bg-orange-500', percentage: 27 },
-                  { stage: 'Final Round', count: 45, color: 'bg-green-500', percentage: 10 },
-                  { stage: 'Hired', count: 18, color: 'bg-pink-500', percentage: 4 },
-                ].map((stage, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-300 font-medium">
-                        {stage.stage}
-                      </span>
-                      <span className="text-slate-400">
-                        {stage.count} candidates
-                      </span>
+                {pipelineStages
+                  .filter(stage => stage.stage !== 'Rejected')
+                  .map((stage, index) => {
+                    const displayPercentage = stage.percentage > 0 
+                      ? Math.min(90, Math.max(10, stage.percentage)) 
+                      : 0;
+                    
+                    return (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-300 font-medium">
+                            {stage.stage}
+                          </span>
+                          <span className="text-slate-400">
+                            {stage.count} candidates
+                          </span>
+                        </div>
+                        <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${displayPercentage}%` }}
+                            transition={{ duration: 1, delay: index * 0.1 }}
+                            className={`absolute inset-y-0 left-0 ${stage.color} rounded-full`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  <h4 className="text-sm font-medium text-slate-300 mb-4">Stage Distribution</h4>
+                  <div className="relative h-48 flex items-center justify-center">
+                    <div className="relative w-40 h-40">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 40 40">
+                        {(() => {
+                          const totalCandidates = pipelineStages.reduce((sum, stage) => sum + stage.count, 0);
+                          let cumulativePercentage = 0;
+                          
+                          return pipelineStages
+                            .filter(stage => stage.count > 0)
+                            .map((stage, index) => {
+                              const percentage = totalCandidates > 0 
+                                ? (stage.count / totalCandidates) * 100 
+                                : 0;
+                              const startAngle = (cumulativePercentage / 100) * 360;
+                              const endAngle = ((cumulativePercentage + percentage) / 100) * 360;
+                              const largeArc = percentage > 50 ? 1 : 0;
+                              const x1 = 20 + 16 * Math.cos((startAngle * Math.PI) / 180);
+                              const y1 = 20 + 16 * Math.sin((startAngle * Math.PI) / 180);
+                              const x2 = 20 + 16 * Math.cos((endAngle * Math.PI) / 180);
+                              const y2 = 20 + 16 * Math.sin((endAngle * Math.PI) / 180);
+                              
+                              const pathData = percentage === 100
+                                ? `M 20 20 L 20 4 A 16 16 0 1 1 19.99 4 Z`
+                                : `M 20 20 L ${x1} ${y1} A 16 16 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                              
+                              cumulativePercentage += percentage;
+                                         
+                              const colorMap: Record<string, string> = {
+                                'Applied': '#a855f7',
+                                'Screening': '#06b6d4',
+                                'Technical': '#f97316',
+                                'Offer': '#10b981',
+                                'Hired': '#ec4899',
+                                'Rejected': '#ef4444',
+                              };
+                              
+                              return (
+                                <path
+                                  key={index}
+                                  d={pathData}
+                                  fill={colorMap[stage.stage] || '#64748b'}
+                                  className="hover:opacity-80 transition-opacity"
+                                />
+                              );
+                            });
+                        })()}
+                        
+                        <circle cx="20" cy="20" r="10" className="fill-slate-900" />
+                      </svg>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-white">
+                            {pipelineStages.reduce((sum, stage) => sum + stage.count, 0)}
+                          </p>
+                          <p className="text-xs text-slate-400">Total</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${stage.percentage}%` }}
-                        transition={{ duration: 1, delay: index * 0.1 }}
-                        className={`absolute inset-y-0 left-0 ${stage.color} rounded-full`}
-                      />
+                    
+                    <div className="ml-8 space-y-2">
+                      {pipelineStages
+                        .filter(stage => stage.count > 0)
+                        .map((stage, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${stage.color}`} />
+                            <span className="text-xs text-slate-400">
+                              {stage.stage}: {stage.count}
+                            </span>
+                          </div>
+                        ))}
                     </div>
                   </div>
-                ))}
+                </div>
 
-                {/* Summary */}
                 <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-2 gap-4">
                   <div className="text-center p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <p className="text-2xl font-bold text-green-400">4%</p>
+                    <p className="text-2xl font-bold text-green-400">{conversionRate}%</p>
                     <p className="text-xs text-slate-400 mt-1">Conversion Rate</p>
                   </div>
                   <div className="text-center p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
@@ -392,7 +623,6 @@ const HrDashboard: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* Upcoming Interviews */}
         <motion.div variants={itemVariants}>
           <Card title="Upcoming Interviews This Week">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">

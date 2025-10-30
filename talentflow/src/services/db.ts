@@ -1,6 +1,5 @@
 import Dexie from 'dexie';
 
-// New: Job interface
 export interface Job {
   id: string;
   title: string;
@@ -45,7 +44,6 @@ export interface TimelineEvent {
   changedBy: string;
 }
 
-// New: assessment schema types
 export type QuestionType =
   | 'single-choice'
   | 'multi-choice'
@@ -94,23 +92,21 @@ export interface AssessmentResponse {
   submittedAt: string;
 }
 
-// Updated TalentFlowDB to include jobs table
 class TalentFlowDB extends Dexie {
   jobs!: Dexie.Table<Job>;
   candidates!: Dexie.Table<Candidate>;
   timeline!: Dexie.Table<TimelineEvent>;
 
-  // New tables for assessments
   assessments!: Dexie.Table<Assessment>;
   assessmentResponses!: Dexie.Table<AssessmentResponse>;
 
   constructor() {
     super('TalentFlowDB');
     this.version(1).stores({
-      jobs: 'id, title, status, order, slug',
-      candidates: 'id, name, email, stage, jobId, appliedDate',
+      jobs: 'id, title, status, order, slug, createdAt',
+      candidates: 'id, name, email, stage, jobId, appliedDate, [stage+jobId]',
       timeline: 'id, candidateId, timestamp',
-      assessments: 'jobId, createdAt',
+      assessments: 'jobId, createdAt, updatedAt',
       assessmentResponses: 'id, assessmentId, candidateId, submittedAt',
     });
     
@@ -118,7 +114,6 @@ class TalentFlowDB extends Dexie {
     this.candidates = this.table('candidates');
     this.timeline = this.table('timeline');
 
-    // Initialize new tables
     this.assessments = this.table('assessments');
     this.assessmentResponses = this.table('assessmentResponses');
   }

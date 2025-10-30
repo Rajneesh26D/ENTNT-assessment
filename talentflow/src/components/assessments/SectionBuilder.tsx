@@ -32,7 +32,6 @@ const SectionBuilder: React.FC<SectionBuilderProps> = ({
   onUpdate,
   onDelete,
 }) => {
-  // Removed unused expanded state
 
   const {
     attributes,
@@ -107,7 +106,6 @@ const SectionBuilder: React.FC<SectionBuilderProps> = ({
   return (
     <div ref={setNodeRef} style={style} className="p-6 rounded-xl bg-white/5 border border-white/10">
       <div className="flex items-start gap-3 mb-4">
-        {/* Drag Handle for Section */}
         <button
           {...attributes}
           {...listeners}
@@ -141,7 +139,6 @@ const SectionBuilder: React.FC<SectionBuilderProps> = ({
       </div>
 
       <div className="mt-6">
-        {/* Drag and Drop Questions */}
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

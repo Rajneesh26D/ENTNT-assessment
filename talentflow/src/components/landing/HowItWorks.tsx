@@ -36,11 +36,9 @@ const steps = [
 const HowItWorks: React.FC = () => {
   return (
     <section className="py-24 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
-      {/* Decorative Elements */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -56,9 +54,7 @@ const HowItWorks: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Timeline */}
         <div className="relative">
-          {/* Connecting Line */}
           <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500/20 via-cyan-500/20 to-green-500/20" />
 
           <div className="grid lg:grid-cols-4 gap-8 lg:gap-4">
@@ -71,7 +67,6 @@ const HowItWorks: React.FC = () => {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 className="relative flex flex-col items-center text-center"
               >
-                {/* Step Number Circle */}
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 360 }}
                   transition={{ duration: 0.6 }}
@@ -80,7 +75,6 @@ const HowItWorks: React.FC = () => {
                   <step.icon className="w-10 h-10 text-white" />
                 </motion.div>
 
-                {/* Content Card */}
                 <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300">
                   <div className="text-sm font-bold text-purple-400 mb-2">
                     STEP {step.number}

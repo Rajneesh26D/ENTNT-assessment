@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, Building  } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,17 +32,15 @@ const Navbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500">
-              <Sparkles className="w-6 h-6 text-white" />
+              <Building  className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
               TalentFlow
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8 relative">
             {navLinks.map((link) => (
               <Link
@@ -56,7 +54,6 @@ const Navbar: React.FC = () => {
               >
                 {link.name}
 
-                {/* Sliding Underline Indicator */}
                 {location.pathname === link.path && (
                   <motion.div
                     layoutId="navbar-underline"
@@ -73,7 +70,6 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* CTA Button - Clean & Solid */}
           <div className="hidden md:block">
             <Link
               to="/hr/dashboard"
@@ -83,7 +79,6 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
@@ -92,7 +87,6 @@ const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile Menu - Simple Slide Down */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div

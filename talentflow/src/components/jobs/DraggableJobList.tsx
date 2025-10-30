@@ -18,7 +18,6 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Job } from '../../services/db';
 import JobCard from './JobCard';
 
-// This is an internal component that wraps JobCard to make it sortable
 const SortableJobCard: React.FC<{
   job: Job;
   onEdit: (job: Job) => void;
@@ -26,18 +25,18 @@ const SortableJobCard: React.FC<{
 }> = ({ job, onEdit, onUpdate }) => {
   const {
     attributes,
-    listeners, // <-- This is the object for the handle
+    listeners, 
     setNodeRef,
     transform,
     isDragging,
   } = useSortable({
     id: job.id,
-    animateLayoutChanges: () => false, // No animations
+    animateLayoutChanges: () => false, 
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: 'none', // No animations
+    transition: 'none', 
     opacity: isDragging ? 0.5 : 1,
   };
 
@@ -45,21 +44,17 @@ const SortableJobCard: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      // --- FIX: `listeners` removed from here ---
-      // --- FIX: cursor classes removed from here ---
-    >
+      {...attributes}    >
       <JobCard
         job={job}
         onUpdate={onUpdate}
         onEdit={() => onEdit(job)}
-        dragHandleListeners={listeners} // <-- FIX: Listeners passed to the handle prop
+        dragHandleListeners={listeners} 
       />
     </div>
   );
 };
 
-// This is the main component you'll import into Jobs.tsx
 interface DraggableJobListProps {
   jobs: Job[];
   onEdit: (job: Job) => void;
@@ -73,7 +68,6 @@ const DraggableJobList: React.FC<DraggableJobListProps> = ({
   onUpdate,
   onReorder,
 }) => {
-  // --- Configured for INSTANT drag, NO delay ---
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {

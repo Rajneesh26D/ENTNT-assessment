@@ -27,7 +27,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (job) {
       setFormData({
@@ -39,7 +38,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
         tags: job.tags || [],
       });
     } else {
-      // Reset form for new job
       setFormData({
         title: '',
         description: '',
@@ -115,7 +113,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
 
     try {
       if (job) {
-        // Update existing job
         await db.jobs.update(job.id, {
           title: formData.title,
           slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
@@ -126,7 +123,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
           tags: formData.tags,
         });
       } else {
-        // Create new job
         const maxOrder = await db.jobs.toArray().then(jobs => 
           Math.max(0, ...jobs.map(j => j.order))
         );
@@ -163,7 +159,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
       size="lg"
     >
       <div className="space-y-6">
-        {/* Job Title */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Job Title *
@@ -177,7 +172,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Description *
@@ -195,7 +189,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
           )}
         </div>
 
-        {/* Location & Type */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -226,7 +219,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
           </div>
         </div>
 
-        {/* Requirements */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Requirements
@@ -264,7 +256,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
           )}
         </div>
 
-        {/* Tags */}
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-2">
             Tags
@@ -294,7 +285,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
                     onClick={() => removeTag(index)}
                     className="text-red-400 hover:text-red-300"
                   >
-                    ×
                   </button>
                 </span>
               ))}
@@ -302,7 +292,6 @@ const JobForm: React.FC<JobFormProps> = ({ isOpen, onClose, job, onSuccess }) =>
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
           <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancel

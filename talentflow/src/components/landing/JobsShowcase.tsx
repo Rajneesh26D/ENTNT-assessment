@@ -36,13 +36,11 @@ const featuredJobs = [
 const JobsShowcase: React.FC = () => {
   return (
     <section className="py-24 bg-slate-900 relative overflow-hidden">
-      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -58,7 +56,6 @@ const JobsShowcase: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Jobs Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {featuredJobs.map((job, index) => (
             <motion.div
@@ -70,21 +67,17 @@ const JobsShowcase: React.FC = () => {
               whileHover={{ y: -8 }}
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
             >
-              {/* Gradient Header */}
               <div className={`h-2 bg-gradient-to-r ${job.gradient}`} />
 
               <div className="p-6">
-                {/* Job Title */}
                 <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-white group-hover:to-slate-300 transition-all">
                   {job.title}
                 </h3>
 
-                {/* Description */}
                 <p className="text-slate-400 mb-6 leading-relaxed">
                   {job.description}
                 </p>
 
-                {/* Meta Info */}
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-2 text-sm text-slate-400">
                     <MapPin className="w-4 h-4 text-purple-400" />
@@ -100,7 +93,6 @@ const JobsShowcase: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-6">
                   {job.tags.map((tag, tagIndex) => (
                     <span
@@ -112,7 +104,6 @@ const JobsShowcase: React.FC = () => {
                   ))}
                 </div>
 
-                {/* CTA Button */}
                 <Link
                   to="/hr/jobs"
                   className="group/btn inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 font-medium transition-colors"
@@ -125,7 +116,6 @@ const JobsShowcase: React.FC = () => {
           ))}
         </div>
 
-        {/* View All Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

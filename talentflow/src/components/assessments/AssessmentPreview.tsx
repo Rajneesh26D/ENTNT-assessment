@@ -41,7 +41,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
                   </div>
                 </div>
 
-                {/* Short Text */}
                 {question.type === 'short-text' && (
                   <input
                     type="text"
@@ -51,7 +50,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
                   />
                 )}
 
-                {/* Long Text */}
                 {question.type === 'long-text' && (
                   <textarea
                     disabled
@@ -61,7 +59,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
                   />
                 )}
 
-                {/* Single Choice */}
                 {question.type === 'single-choice' && (
                   <div className="space-y-2">
                     {question.options?.map((option, index) => (
@@ -76,7 +73,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
                   </div>
                 )}
 
-                {/* Multi Choice */}
                 {question.type === 'multi-choice' && (
                   <div className="space-y-2">
                     {question.options?.map((option, index) => (
@@ -91,7 +87,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
                   </div>
                 )}
 
-                {/* Numeric */}
                 {question.type === 'numeric' && (
                   <>
                     <input
@@ -108,7 +103,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
                   </>
                 )}
 
-                {/* File Upload */}
                 {question.type === 'file-upload' && (
                   <div className="p-4 border-2 border-dashed border-slate-700 rounded-lg text-center">
                     <p className="text-slate-500 text-sm">File upload field</p>
@@ -120,7 +114,6 @@ const AssessmentPreview: React.FC<AssessmentPreviewProps> = ({ assessment }) => 
         </div>
       ))}
 
-      {/* Read-only note - NO SUBMIT BUTTON */}
       <div className="mt-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
         <p className="text-blue-300 text-sm">
           ℹ️ This is a preview only. Candidates will be able to fill and submit this assessment.

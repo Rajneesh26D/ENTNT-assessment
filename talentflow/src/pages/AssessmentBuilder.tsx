@@ -60,7 +60,6 @@ const AssessmentBuilder: React.FC = () => {
         setAssessment(assessmentData);
         setSections(assessmentData.sections || []);
         setTitle(jobData?.title + ' Assessment' || '');
-        // Assessment does not have a description property, so use jobData or keep previous state
         setDescription(description || `Assessment for ${jobData?.title} position`);
       } else {
         setTitle(jobData?.title + ' Assessment' || '');
@@ -134,7 +133,6 @@ const AssessmentBuilder: React.FC = () => {
   return (
     <HrLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
@@ -163,7 +161,6 @@ const AssessmentBuilder: React.FC = () => {
           </p>
         </div>
 
-        {/* Assessment Details */}
         <div className="p-6 rounded-xl bg-white/5 border border-white/10">
           <h2 className="text-xl font-semibold text-white mb-4">Assessment Details</h2>
           
@@ -194,7 +191,6 @@ const AssessmentBuilder: React.FC = () => {
           </div>
         </div>
 
-        {/* Drag and Drop Sections */}
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -225,7 +221,6 @@ const AssessmentBuilder: React.FC = () => {
           Add Section
         </button>
 
-        {/* Sticky Save Button at Bottom */}
         <div className="sticky bottom-4 bg-slate-950/95 backdrop-blur-sm p-4 rounded-xl border border-white/10 shadow-xl">
           <Button
             variant="primary"
@@ -239,7 +234,6 @@ const AssessmentBuilder: React.FC = () => {
         </div>
       </div>
 
-      {/* Preview Modal */}
       <Modal
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}

@@ -31,7 +31,6 @@ const JobDetails: React.FC = () => {
       const jobData = await db.jobs.get(jobId);
       setJob(jobData || null);
 
-      // Count candidates for this job
       const count = await db.candidates.where('jobId').equals(jobId).count();
       setCandidateCount(count);
 
@@ -77,7 +76,6 @@ const JobDetails: React.FC = () => {
   return (
     <HrLayout>
       <div className="space-y-6">
-        {/* Back Button */}
         <Link
           to="/hr/jobs"
           className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
@@ -86,19 +84,16 @@ const JobDetails: React.FC = () => {
           Back to Jobs
         </Link>
 
-        {/* Job Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <Card gradient>
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              {/* Icon */}
               <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
                 <Users className="w-8 h-8 text-white" />
               </div>
 
-              {/* Info */}
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -128,7 +123,6 @@ const JobDetails: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tags */}
                 <div className="flex flex-wrap gap-2">
                   {job.tags.map((tag, i) => (
                     <span
@@ -141,7 +135,6 @@ const JobDetails: React.FC = () => {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex flex-col gap-2">
                 <Button variant="gradient" icon={<Edit className="w-4 h-4" />}>
                   Edit Job
@@ -158,18 +151,14 @@ const JobDetails: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Job Content */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Description & Requirements */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
             {job.description && (
               <Card title="Description">
                 <p className="text-slate-300 leading-relaxed">{job.description}</p>
               </Card>
             )}
 
-            {/* Requirements */}
             {job.requirements && job.requirements.length > 0 && (
               <Card title="Requirements">
                 <ul className="space-y-3">
@@ -184,9 +173,7 @@ const JobDetails: React.FC = () => {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Job Info */}
             <Card title="Job Information">
               <div className="space-y-4">
                 <div>

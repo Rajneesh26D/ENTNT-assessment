@@ -37,17 +37,14 @@ export function useCandidates(
     setError(null);
 
     try {
-      // Fetch directly from IndexedDB for better performance
       let query = db.candidates.toCollection();
 
-      // Filter by stage
       if (stage) {
         query = db.candidates.where('stage').equals(stage as Candidate['stage']);
       }
 
       let allCandidates = await query.toArray();
 
-      // Client-side search
       if (search) {
         const searchLower = search.toLowerCase();
         allCandidates = allCandidates.filter(
@@ -56,7 +53,6 @@ export function useCandidates(
         );
       }
 
-      // Calculate pagination
       const total = allCandidates.length;
       const totalPages = Math.ceil(total / pageSize);
       const start = (page - 1) * pageSize;
@@ -79,10 +75,8 @@ export function useCandidates(
 
   const updateCandidate = async (id: string, updates: Partial<Candidate>) => {
     try {
-      // Update in IndexedDB
       await db.candidates.update(id, updates);
 
-      // Add timeline event if stage changed
       if (updates.stage) {
         await db.timeline.add({
           id: `timeline-${Date.now()}`,
@@ -94,7 +88,6 @@ export function useCandidates(
         });
       }
 
-      // Refresh candidates
       await fetchCandidates();
     } catch (err) {
       throw new Error(`Failed to update candidate: ${err instanceof Error ? err.message : String(err)}`);

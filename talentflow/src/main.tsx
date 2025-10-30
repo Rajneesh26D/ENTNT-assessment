@@ -5,9 +5,7 @@ import './index.css';
 import { worker } from './services/api';
 import { seedDatabase } from './services/seed';
 
-// Start MSW and seed database
 async function enableMocking() {
-  // In production, seed database WITHOUT MSW (MSW doesn't work in prod)
   if (import.meta.env.MODE !== 'development') {
     console.log('🌱 Production: Seeding database...');
     await seedDatabase();
@@ -15,7 +13,6 @@ async function enableMocking() {
     return;
   }
 
-  // In development, start MSW AND seed
   await worker.start({
     onUnhandledRequest: 'bypass',
   });

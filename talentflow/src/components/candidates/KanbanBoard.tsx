@@ -52,7 +52,6 @@ const SortableCard: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
     isDragging,
   } = useSortable({
     id: candidate.id,
-    // animateLayoutChanges: () => false,
   });
 
   const style = {

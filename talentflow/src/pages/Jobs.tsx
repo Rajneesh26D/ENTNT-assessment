@@ -61,7 +61,6 @@ const Jobs: React.FC = () => {
   return (
     <HrLayout title="Jobs">
       <div className="space-y-6">
-        {/* Header with Actions */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30">
             <p className="text-sm text-purple-300">
@@ -88,7 +87,6 @@ const Jobs: React.FC = () => {
               Export JSON
             </Button>
 
-            {/* CHANGED: gradient → primary */}
             <Button
               variant="primary"
               icon={<Plus className="w-4 h-4" />}
@@ -99,14 +97,12 @@ const Jobs: React.FC = () => {
           </div>
         </div>
 
-        {/* Search and Filters */}
         <JobFilters
           onSearch={handleSearch}
           onStatusFilter={handleStatusFilter}
           currentStatus={statusFilter}
         />
 
-        {/* Content */}
         <div>
           {loading && currentPage === 1 ? (
             <div
@@ -134,7 +130,6 @@ const Jobs: React.FC = () => {
               className="flex flex-col items-center justify-center py-20 text-center"
             >
               <p className="text-slate-400 text-lg mb-4">No jobs found</p>
-              {/* CHANGED: gradient → primary */}
               <Button variant="primary" icon={<Plus className="w-4 h-4" />}>
                 Create Your First Job
               </Button>
@@ -148,7 +143,6 @@ const Jobs: React.FC = () => {
                 onReorder={reorderJobs}
               />
 
-              {/* Pagination */}
               {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
                   <p className="text-slate-400 text-sm">
@@ -211,7 +205,6 @@ const Jobs: React.FC = () => {
         </div>
       </div>
 
-      {/* Job Form Modal */}
       <JobForm
         isOpen={showJobForm}
         onClose={() => setShowJobForm(false)}

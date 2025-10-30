@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Download } from 'lucide-react'; // Add Download here
+import { Search, Loader2, Download } from 'lucide-react'; 
 import HrLayout from '../components/layout/HrLayout';
 import AssessmentCard from '../components/assessments/AssessmentCard';
 import Input from '../components/ui/Input';
-import Button from '../components/ui/Button'; // Import Button
+import Button from '../components/ui/Button'; 
 import { db } from '../services/db';
 import type { Assessment, Job } from '../services/db';
 import { exportAssessmentsToJSON } from '../utils/export';
@@ -50,7 +50,6 @@ const Assessments: React.FC = () => {
   return (
     <HrLayout title="Assessments">
       <div className="space-y-6">
-        {/* ADD THIS SECTION: Header with Export Button */}
         <div className="flex items-center justify-between">
           <p className="text-slate-400">
             Create and manage job-specific assessments and quizzes

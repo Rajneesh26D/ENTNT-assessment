@@ -38,7 +38,6 @@ const CandidateSearch: React.FC<CandidateSearchProps> = ({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      {/* Search Bar */}
       <Input
         type="text"
         placeholder="Search by name or email..."
@@ -47,7 +46,6 @@ const CandidateSearch: React.FC<CandidateSearchProps> = ({
         icon={<Search className="w-4 h-4" />}
       />
 
-      {/* Stage Filters */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2 text-slate-400 text-sm">
           <Filter className="w-4 h-4" />

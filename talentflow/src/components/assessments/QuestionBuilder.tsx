@@ -11,7 +11,7 @@ interface QuestionBuilderProps {
   questionNumber: number;
   onUpdate: (question: Question) => void;
   onDelete: () => void;
-  dragHandleProps?: any; // Add this
+  dragHandleProps?: any; 
 }
 
 const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
@@ -81,7 +81,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             </label>
           </div>
 
-          {/* Question Type */}
           <div className="mb-3">
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Question Type
@@ -102,7 +101,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             </select>
           </div>
 
-          {/* Question Text */}
           <div className="mb-3">
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Question
@@ -116,7 +114,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             />
           </div>
 
-          {/* Options for choice questions */}
           {(question.type === "single-choice" ||
             question.type === "multi-choice") && (
             <div className="mb-3">
@@ -135,7 +132,7 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
                       onClick={() => removeOption(index)}
                       className="px-3 text-red-400 hover:text-red-300"
                     >
-                      ×
+                      
                     </button>
                   </div>
                 ))}
@@ -149,7 +146,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             </div>
           )}
 
-          {/* Min/Max Length for text */}
           {(question.type === "short-text" ||
             question.type === "long-text") && (
             <div className="grid grid-cols-2 gap-3 mb-3">
@@ -185,7 +181,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             </div>
           )}
 
-          {/* Min/Max for numeric */}
           {question.type === "numeric" && (
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
@@ -217,7 +212,6 @@ const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             </div>
           )}
 
-          {/* Conditional Logic */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Conditional Logic (Optional)

@@ -28,14 +28,12 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
       className="mb-4 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all group"
     >
       <div className="flex items-center gap-4">
-        {/* Avatar */}
         <img
           src={candidate.avatar}
           alt={candidate.name}
           className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 p-0.5"
         />
 
-        {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
             <div>
@@ -75,7 +73,6 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
           </div>
         </div>
 
-        {/* Action */}
         <Link
           to={`/hr/candidates/${candidate.id}`}
           className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"

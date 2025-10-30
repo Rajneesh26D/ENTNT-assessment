@@ -92,7 +92,6 @@ const AssessmentTake: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <button
           onClick={() => navigate('/hr/assessments')}
           className="flex items-center gap-2 text-white bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg mb-6"
@@ -113,7 +112,6 @@ const AssessmentTake: React.FC = () => {
           </p>
         </div>
 
-        {/* Progress Card */}
         <div className="p-6 rounded-xl bg-white/5 border border-white/10 mb-6">
           <h2 className="text-xl font-bold text-white mb-4">
             {assessment.jobTitle} Assessment
@@ -139,7 +137,6 @@ const AssessmentTake: React.FC = () => {
           </p>
         </div>
 
-        {/* Sections */}
         {assessment.sections.map((section, sectionIndex) => (
           <div key={section.id} className="p-6 rounded-xl bg-slate-900/50 border border-white/10 mb-6">
             <div className="flex items-center gap-3 mb-4">
@@ -152,7 +149,6 @@ const AssessmentTake: React.FC = () => {
               <p className="text-slate-400 mb-6">{section.description}</p>
             )}
 
-            {/* Questions */}
             {section.questions.map((question) => {
               const value = responses[question.id] || '';
               const error = errors[question.id];
@@ -270,7 +266,6 @@ const AssessmentTake: React.FC = () => {
           </div>
         ))}
 
-        {/* Submit Section */}
         <div className="p-6 rounded-xl bg-white/5 border border-white/10">
           <p className="text-slate-400 mb-4">
             Ready to submit? Make sure all required fields are completed.
