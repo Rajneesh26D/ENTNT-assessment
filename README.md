@@ -102,7 +102,6 @@ TALENTFLOW/
 │       │   ├── useAssessments.ts
 │       │   ├── useCandidates.ts
 │       │   └── useJobs.ts
-│       ├── lib/
 │       ├── pages/
 │       │   ├── AssessmentBuilder.tsx
 │       │   ├── Assessments.tsx
@@ -159,7 +158,7 @@ TALENTFLOW/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Rajneesh26D/ENTNT-assessment.git
    cd TALENTFLOW/talentflow
    ```
 
@@ -173,10 +172,10 @@ TALENTFLOW/
    npm run dev
    ```
 
-4. **Open in browser**
+4. **in browser**
    → `http://localhost:5173`
 
-### **Available Scripts**
+### **Scripts**
 
 | Script           | Description                     |
 |------------------|---------------------------------|
